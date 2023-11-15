@@ -58,10 +58,10 @@ jobs:
           git checkout uat
           git rebase dev
         env:
-          GIT_TOKEN: ${{ secrets.MY_ACTION_TOKEN }}
+          GIT_TOKEN: ${{ secrets.MY_OTHER_TOKEN }}
 
       - name: Push changes
         run: |
           git push origin uat
         env:
-          GIT_TOKEN: ${{ secrets.MY_ACTION_TOKEN }}
+          GIT_TOKEN: ${{ secrets.MY_OTHER_TOKEN }}
