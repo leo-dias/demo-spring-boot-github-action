@@ -41,13 +41,20 @@ jobs:
       - name: Test with Maven
         run: mvn ${{ env.MAVEN_CLI_OPTS }} test
 
-  deploy_script:
+  rebase:
     needs: test
     runs-on: ubuntu-latest
     environment: 'UAT'
 
     steps:
       - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0  # Needed for rebasing
 
-      - name: Rebasing to UAT
-        run: echo "Rebasing to UAT"
+      - name: Rebase uat branch
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git checkout uat
+          git rebase dev
+          git push origin uat
