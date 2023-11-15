@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>com.example.ldo</groupId>
 	<artifactId>demo-spring-boot-github-action</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>Versioned by JGitVer</version>
 	<name>demo-spring-boot-github-action</name>
 	<description>Demo project for Spring Boot and Github Action</description>
 	<properties>
