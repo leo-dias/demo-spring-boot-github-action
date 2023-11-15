@@ -52,16 +52,16 @@ jobs:
           fetch-depth: 0  # Needed for rebasing
 
       - name: Rebase uat branch
+        with:
+          github-token: ${{ secrets.MY_OTHER_TOKEN }}
         run: |
           git config user.name github-actions
           git config user.email github-actions@github.com
           git checkout uat
           git rebase dev
-        env:
-          GIT_TOKEN: ${{ secrets.MY_OTHER_TOKEN }}
 
       - name: Push changes
+        with:
+          github-token: ${{ secrets.MY_OTHER_TOKEN }}
         run: |
           git push origin uat
-        env:
-          GIT_TOKEN: ${{ secrets.MY_OTHER_TOKEN }}
