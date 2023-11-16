@@ -5,6 +5,7 @@ on:
     workflows: ["02 - CI/CD Pipeline for UAT Branch"]
     types:
       - completed
+  workflow_dispatch:
     inputs:
       version:
         description: 'The type of version change: major, minor, patch'
@@ -76,7 +77,7 @@ jobs:
                   PATCH=$((PATCH + 1))
               ;;
           esac
-          NEW_TAG="v$MAJOR.$MINOR.$PATCH"
+          NEW_TAG="$MAJOR.$MINOR.$PATCH"
           echo "Bumping $LAST_TAG to $NEW_TAG"
           
           git tag $NEW_TAG
