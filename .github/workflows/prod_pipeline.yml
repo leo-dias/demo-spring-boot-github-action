@@ -1,10 +1,10 @@
 name: 03 - CI/CD Pipeline for Master Branch
 
 on:
-  workflow_run:
-    workflows: ["02 - CI/CD Pipeline for UAT Branch"]
-    types:
-      - completed
+#  workflow_run:
+#    workflows: ["02 - CI/CD Pipeline for UAT Branch"]
+#    types:
+#      - completed
   workflow_dispatch:
     inputs:
       version:
@@ -21,7 +21,7 @@ env:
 jobs:
   rebase_master:
     runs-on: ubuntu-latest
-    environment: 'REBASE_PROD'
+#    environment: 'REBASE_PROD'
     permissions: write-all
 
     steps:
@@ -84,7 +84,7 @@ jobs:
           git push origin $NEW_TAG
 
   deploy_master:
-    needs: rebase_master
+    needs: create_tag
     runs-on: ubuntu-latest
     environment: 'DEPLOY_PROD'
     permissions: write-all
