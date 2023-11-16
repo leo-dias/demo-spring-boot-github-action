@@ -1,4 +1,4 @@
-name: CI/CD Pipeline for UAT Branch
+name: 02 - CI/CD Pipeline for UAT Branch
 
 on:
   push:
