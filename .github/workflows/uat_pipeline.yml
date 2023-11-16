@@ -19,7 +19,7 @@ env:
 jobs:
   rebase_uat:
     runs-on: ubuntu-latest
-    environment: 'REBASE_UAT'
+#    environment: 'REBASE_UAT'
     permissions: write-all
 
     steps:

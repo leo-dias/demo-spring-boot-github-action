@@ -51,42 +51,33 @@ jobs:
       - uses: actions/checkout@v2
       - name: Bump version and push tag
         run: |
-          CUR_TAG=$(git tag -l --sort=-v:refname | head -n 1)
-        
-          IFS='.' read -a vers <<< "$CUR_TAG"
+          git fetch --tags
+          VERSION_CHANGES="${{ github.event.inputs.version }}"
           
-          MAJ=${vers[0]}
-          MIN=${vers[1]}
-          PATCH=${vers[2]}
+          LAST_TAG=$(git tag -l --sort=-v:refname | head -n 1)
+          MAJOR=$(echo $LAST_TAG | cut -d . -f1)
+          MINOR=$(echo $LAST_TAG | cut -d . -f2)
+          PATCH=$(echo $LAST_TAG | cut -d . -f3)
 
-          echo "Current Tag: $MAJ.$MIN.$PATCH"
-            
-          for cmd in "$@"
-          do
-            case $cmd in
-              "major")
-                ((MAJ+=1))
-                MIN=0
-                PATCH=0
-                echo "Incrementing Major Version"
-              ;;
-              "minor")
-              ((MIN+=1))
-                PATCH=0
-                echo "Incrementing Minor Version"
-              ;;
-              "patch")
-                ((PATCH+=1))
-                echo "Incrementing Patch Version"
-              ;;
-            esac
-          done
-          
-          NEW_TAG="$MAJ.$MIN.$PATCH"
+          case $VERSION_CHANGES in
+            "major" )
+              MAJOR=$((MAJOR + 1))
+              MINOR=0
+              PATCH=0
+            ;;
+            "minor" )
+              MINOR=$((MINOR + 1))
+              PATCH=0
+            ;;
+            "patch" )
+              PATCH=$((PATCH + 1))
+            ;;
+          esac
+          NEW_TAG="$MAJOR.$MINOR.$PATCH"
+          echo "Bumping $LAST_TAG to $NEW_TAG"
 
-          echo "Adding Tag: $NEW_TAG";
-          git tag -a "$NEW_TAG" -m "$NEW_TAG"
-          git push origin "$NEW_TAG"
+          git tag $NEW_TAG
+          git push origin $NEW_TAG
 
 
   deploy_master:
