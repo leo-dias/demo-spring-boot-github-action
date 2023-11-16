@@ -65,3 +65,61 @@ jobs:
           git push origin uat
         env:
           GIT_TOKEN: ${{ secrets.MY_OTHER_TOKEN }}
+
+  build_uat:
+    needs: rebase_uat
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v3
+        with:
+          java-version: '21'
+          distribution: 'adopt'
+
+      - name: Build with Maven
+        run: mvn ${{ env.MAVEN_CLI_OPTS }} clean install
+
+  test_uat:
+    needs: build_uat
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v3
+        with:
+          java-version: '21'
+          distribution: 'adopt'
+
+      - name: Test with Maven
+        run: mvn ${{ env.MAVEN_CLI_OPTS }} test
+
+  rebase_master:
+    needs: test_uat
+    runs-on: ubuntu-latest
+    environment: 'PROD'
+    permissions: write-all
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # Needed for rebasing
+
+      - name: Rebase master branch
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git checkout master
+          git rebase uat
+        env:
+          GIT_TOKEN: ${{ secrets.MY_OTHER_TOKEN }}
+
+      - name: Push changes to master
+        run: |
+          git push origin master
+        env:
+          GIT_TOKEN: ${{ secrets.MY_OTHER_TOKEN }}
