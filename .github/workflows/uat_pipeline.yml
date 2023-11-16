@@ -1,0 +1,84 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - dev
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+  
+env:
+  MAVEN_CLI_OPTS: "-B -V"
+
+jobs:
+  rebase_uat:
+    needs: deploy_dev
+    runs-on: ubuntu-latest
+    environment: 'REBASE_UAT'
+    permissions: write-all
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # Needed for rebasing
+
+      - name: Rebase uat branch
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git checkout uat
+          git rebase dev
+        env:
+          GIT_TOKEN: ${{ secrets.MY_OTHER_TOKEN }}
+
+      - name: Push changes to uat
+        run: |
+          git push origin uat
+        env:
+          GIT_TOKEN: ${{ secrets.MY_OTHER_TOKEN }}
+
+  build_uat:
+    needs: rebase_uat
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v3
+        with:
+          java-version: '21'
+          distribution: 'adopt'
+
+      - name: Build with Maven
+        run: mvn ${{ env.MAVEN_CLI_OPTS }} clean install
+
+  test_uat:
+    needs: build_uat
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v3
+        with:
+          java-version: '21'
+          distribution: 'adopt'
+
+      - name: Test with Maven
+        run: mvn ${{ env.MAVEN_CLI_OPTS }} test
+
+  deploy_uat:
+    needs: test_uat
+    runs-on: ubuntu-latest
+    environment: 'DEPLOY_UAT'
+    permissions: write-all
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Deploy to uat
+        run: echo "Deploying to uat"
