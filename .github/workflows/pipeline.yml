@@ -61,7 +61,7 @@ jobs:
         env:
           GIT_TOKEN: ${{ secrets.MY_OTHER_TOKEN }}
 
-      - name: Push changes
+      - name: Push changes to uat
         run: |
           git push origin uat
         env:
