@@ -5,6 +5,10 @@ on:
     workflows: ["02 - CI/CD Pipeline for UAT Branch"]
     types:
       - completed
+    inputs:
+      version:
+        description: 'The type of version change: major, minor, patch'
+        required: true
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -41,6 +45,40 @@ jobs:
           git push origin master
         env:
           GIT_TOKEN: ${{ secrets.MY_OTHER_TOKEN }}
+
+  create_tag:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Bump version and push tag
+        run: |
+          git fetch --tags
+          VERSION_CHANGES="${{ github.event.inputs.version }}"
+          
+          LAST_TAG=$(git tag -l --sort=-v:refname | head -n 1)
+          MAJOR=$(echo $LAST_TAG | cut -d . -f1 | cut -c 2- )
+          MINOR=$(echo $LAST_TAG | cut -d . -f2)
+          PATCH=$(echo $LAST_TAG | cut -d . -f3)
+          
+          case $VERSION_CHANGES in 
+              "major" )
+                  MAJOR=$((MAJOR + 1))
+                  MINOR=0
+                  PATCH=0
+              ;;
+              "minor" )
+                  MINOR=$((MINOR + 1))
+                  PATCH=0
+              ;;
+              "patch" )
+                  PATCH=$((PATCH + 1))
+              ;;
+          esac
+          NEW_TAG="v$MAJOR.$MINOR.$PATCH"
+          echo "Bumping $LAST_TAG to $NEW_TAG"
+          
+          git tag $NEW_TAG
+          git push origin $NEW_TAG
 
   deploy_master:
     needs: rebase_master
