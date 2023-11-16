@@ -51,7 +51,7 @@ jobs:
       - uses: actions/checkout@v2
       - name: Bump version and push tag
         run: |
-          CUR_TAG=$(git describe --abbrev=0 --tags);
+          CUR_TAG=$(git tag -l --sort=-v:refname | head -n 1)
         
           IFS='.' read -a vers <<< "$CUR_TAG"
           
