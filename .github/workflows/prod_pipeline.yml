@@ -15,7 +15,6 @@ env:
 
 jobs:
   rebase_master:
-    needs: deploy_uat
     runs-on: ubuntu-latest
     environment: 'REBASE_PROD'
     permissions: write-all
