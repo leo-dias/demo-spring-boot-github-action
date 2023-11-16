@@ -1,9 +1,9 @@
-name: CI/CD Pipeline
+name: CI/CD Pipeline for UAT Branch
 
 on:
   push:
     branches:
-      - dev
+      - uat
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}

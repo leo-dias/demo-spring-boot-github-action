@@ -1,9 +1,9 @@
-name: CI/CD Pipeline
+name: CI/CD Pipeline for Master Branch
 
 on:
   push:
     branches:
-      - dev
+      - master
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
