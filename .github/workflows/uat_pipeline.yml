@@ -13,32 +13,6 @@ env:
   MAVEN_CLI_OPTS: "-B -V"
 
 jobs:
-  rebase_uat:
-    needs: deploy_dev
-    runs-on: ubuntu-latest
-    environment: 'REBASE_UAT'
-    permissions: write-all
-
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0  # Needed for rebasing
-
-      - name: Rebase uat branch
-        run: |
-          git config user.name github-actions
-          git config user.email github-actions@github.com
-          git checkout uat
-          git rebase dev
-        env:
-          GIT_TOKEN: ${{ secrets.MY_OTHER_TOKEN }}
-
-      - name: Push changes to uat
-        run: |
-          git push origin uat
-        env:
-          GIT_TOKEN: ${{ secrets.MY_OTHER_TOKEN }}
-
   build_uat:
     needs: rebase_uat
     runs-on: ubuntu-latest
@@ -82,3 +56,32 @@ jobs:
 
       - name: Deploy to uat
         run: echo "Deploying to uat"
+
+  rebase_master:
+    needs: deploy_uat
+    runs-on: ubuntu-latest
+    environment: 'REBASE_PROD'
+    permissions: write-all
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # Needed for rebasing
+
+      - name: Rebase master branch
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git checkout uat
+          git pull
+          git checkout master
+          git pull
+          git rebase uat
+        env:
+          GIT_TOKEN: ${{ secrets.MY_OTHER_TOKEN }}
+
+      - name: Push changes to master
+        run: |
+          git push origin master
+        env:
+          GIT_TOKEN: ${{ secrets.MY_OTHER_TOKEN }}
