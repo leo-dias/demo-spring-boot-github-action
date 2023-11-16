@@ -9,8 +9,7 @@ env:
   MAVEN_CLI_OPTS: "-B -V"
 
 jobs:
-  build:
-
+  build_dev:
     runs-on: ubuntu-latest
 
     steps:
@@ -25,8 +24,8 @@ jobs:
       - name: Build with Maven
         run: mvn ${{ env.MAVEN_CLI_OPTS }} clean install
 
-  test:
-    needs: build
+  test_dev:
+    needs: build_dev
     runs-on: ubuntu-latest
 
     steps:
@@ -41,8 +40,8 @@ jobs:
       - name: Test with Maven
         run: mvn ${{ env.MAVEN_CLI_OPTS }} test
 
-  rebase:
-    needs: test
+  rebase_uat:
+    needs: test_dev
     runs-on: ubuntu-latest
     environment: 'UAT'
     permissions: write-all
