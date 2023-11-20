@@ -21,4 +21,8 @@ public class BooController {
     public String hello3() {
         return "hello3";
     }
+    @RequestMapping
+    public String hello4() {
+        return "hello4";
+    }
 }
