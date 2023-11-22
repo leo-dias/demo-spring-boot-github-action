@@ -45,6 +45,7 @@ jobs:
         run: mvn ${{ env.MAVEN_CLI_OPTS }} test
 
   create_tag:
+    needs: test_hotfix
     runs-on: ubuntu-latest
     permissions: write-all
     steps:
