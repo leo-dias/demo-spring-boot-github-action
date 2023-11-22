@@ -1,9 +1,11 @@
 name: 04 - CI/CD Pipeline for Hotfix Branch
 
 on:
-  push:
-    branches:
-      - hotfix/*
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Type the hotfix branch name'
+        required: true
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -92,9 +94,9 @@ jobs:
           fetch-depth: 0  # Required for rebasing
 
       - name: Create a Hotfix PR
-        uses: repo-sync/pull-request@v2
+        uses: repo-sync/pull-request@v3
         with:
-          source_branch: "hotfix"
+          source_branch: "${{ github.event.inputs.version }}"
           destination_branch: "dev"
           pr_title: "Rebase Dev on Hotfix changes"
           pr_body: "This PR rebases the Dev branch on recent hotfix changes. **It requires manual approval before it can be merged.**"
