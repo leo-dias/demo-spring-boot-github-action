@@ -1,0 +1,102 @@
+name: 04 - CI/CD Pipeline for Hotfix Branch
+
+on:
+  push:
+    branches:
+      - hotfix/*
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+  
+env:
+  MAVEN_CLI_OPTS: "-B -V"
+
+jobs:
+  build_hotfix:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v3
+        with:
+          java-version: '21'
+          distribution: 'adopt'
+
+      - name: Build with Maven
+        run: mvn ${{ env.MAVEN_CLI_OPTS }} clean install
+
+  test_hotfix:
+    needs: build_dev
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v3
+        with:
+          java-version: '21'
+          distribution: 'adopt'
+
+      - name: Test with Maven
+        run: mvn ${{ env.MAVEN_CLI_OPTS }} test
+
+  create_tag:
+    runs-on: ubuntu-latest
+    permissions: write-all
+    steps:
+      - uses: actions/checkout@v3
+      - name: Bump version and push tag
+        run: |
+          git fetch --tags
+          VERSION_CHANGES="patch"
+          
+          LAST_TAG=$(git tag -l --sort=-v:refname | head -n 1)
+          MAJOR=$(echo $LAST_TAG | cut -d . -f1)
+          MINOR=$(echo $LAST_TAG | cut -d . -f2)
+          PATCH=$(echo $LAST_TAG | cut -d . -f3)
+          PATCH=$((PATCH + 1))
+          NEW_TAG="$MAJOR.$MINOR.$PATCH"
+          echo "Bumping $LAST_TAG to $NEW_TAG"
+
+          git tag $NEW_TAG
+          git push origin $NEW_TAG
+
+
+  deploy_prod:
+    needs: create_tag
+    runs-on: ubuntu-latest
+    environment: 'DEPLOY_PROD'
+    permissions: write-all
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Deploy to prod
+        run: echo "Deploying to prod"
+
+  pr_hotfix:
+    needs: deploy_prod
+    runs-on: ubuntu-latest
+    permissions: write-all
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          ref: dev
+          fetch-depth: 0  # Required for rebasing
+
+      - name: Create a Hotfix PR
+        uses: repo-sync/pull-request@v2
+        with:
+          source_branch: "hotfix"
+          destination_branch: "dev"
+          pr_title: "Rebase Dev on Hotfix changes"
+          pr_body: "This PR rebases the Dev branch on recent hotfix changes. **It requires manual approval before it can be merged.**"
+          pr_label: "rebase"
+          pr_allow_empty: false
+          github_token: ${{ secrets.MY_ACTION_TOKEN }}
