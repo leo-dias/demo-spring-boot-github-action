@@ -29,7 +29,7 @@ jobs:
         run: mvn ${{ env.MAVEN_CLI_OPTS }} clean install
 
   test_hotfix:
-    needs: build_dev
+    needs: build_hotfix
     runs-on: ubuntu-latest
 
     steps:
