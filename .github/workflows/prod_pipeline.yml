@@ -108,7 +108,7 @@ jobs:
           prerelease: false
 
   deploy_master:
-    needs: create_tag
+    needs: create_release
     runs-on: ubuntu-latest
     environment: 'DEPLOY_PROD'
     permissions: write-all
