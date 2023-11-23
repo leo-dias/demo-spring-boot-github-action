@@ -68,19 +68,47 @@ jobs:
           git tag $NEW_TAG
           git push origin $NEW_TAG
 
-  deploy_hotfix:
+  create_release:
     needs: create_tag
+    runs-on: ubuntu-latest
+    permissions: write-all
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Get tag name from ref
+        shell: bash
+        run: |
+          git fetch --tags
+          LAST_TAG=$(git tag -l --sort=-v:refname | head -n 1)
+          echo "::set-output name=tag::$LAST_TAG"
+        id: get_tag
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.MY_OTHER_TOKEN }}
+        with:
+          tag_name: ${{ steps.get_tag.outputs.tag }}
+          release_name: Release ${{ steps.get_tag.outputs.tag }}
+          draft: false
+          prerelease: false
+
+  deploy_hotfix:
+    needs: create_release
     runs-on: ubuntu-latest
     permissions: write-all
 
     steps:
       - uses: actions/checkout@v3
 
-      - name: Deploy to hotfix
+      - name: Deploy to hotfix environment
         run: echo "Deploying to hotfix"
 
   deploy_prod:
-    needs: create_tag
+    needs: deploy_hotfix
     runs-on: ubuntu-latest
     environment: 'DEPLOY_PROD'
     permissions: write-all
@@ -88,7 +116,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Deploy to prod
+      - name: Deploy to prod environment
         run: echo "Deploying to prod"
 
   pr_hotfix:
