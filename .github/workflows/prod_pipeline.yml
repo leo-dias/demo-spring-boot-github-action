@@ -91,16 +91,3 @@ jobs:
 
       - name: Deploy to prod
         run: echo "Deploying to prod"
-
-  cleanup_hotfix:
-    needs: deploy_master
-    runs-on: ubuntu-latest
-    permissions: write-all
-
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Delete hotfix branches
-        run: |
-          git fetch --prune --no-tags
-          git branch -r | grep -E 'origin/hotfix/.*' | sed 's/origin\///' | xargs -L1 -I{} git push --delete origin {}
