@@ -111,7 +111,6 @@ jobs:
   deploy_prod:
     needs: create_release
     runs-on: ubuntu-latest
-    environment: 'DEPLOY_PROD'
     permissions: write-all
 
     steps:
