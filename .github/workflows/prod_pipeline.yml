@@ -107,6 +107,35 @@ jobs:
           draft: false
           prerelease: false
 
+  delete_and_recreate_branch:
+    needs: create_release
+    runs-on: ubuntu-latest
+    permissions: write-all
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Check if Hotfix/Master Branch exists
+        id: branch_exists
+        run: |
+          if git rev-parse --verify hotfix/master >/dev/null 2>&1; then
+            echo "::set-output name=exists::true"
+          else
+            echo "::set-output name=exists::false"
+          fi
+
+      - name: Delete Hotfix/Master Branch
+        if: steps.branch_exists.outputs.exists == 'true'
+        run: |
+          git branch -D hotfix/master
+          git push origin --delete hotfix/master
+
+      - name: Recreate Hotfix/Master Branch
+        run: |
+          git checkout -b hotfix/master
+          git push origin hotfix/master
+
   deploy_master:
     needs: create_release
     runs-on: ubuntu-latest
