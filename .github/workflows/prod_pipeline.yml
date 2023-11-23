@@ -79,6 +79,25 @@ jobs:
           git tag $NEW_TAG
           git push origin $NEW_TAG
 
+  create_release:
+    needs: create_tag
+    runs-on: ubuntu-latest
+    permissions: write-all
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.MY_OTHER_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          body: |
+            Release ${{ github.ref }}
 
   deploy_master:
     needs: create_tag
