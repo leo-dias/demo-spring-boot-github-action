@@ -46,8 +46,19 @@ jobs:
       - name: Test with Maven
         run: mvn ${{ env.MAVEN_CLI_OPTS }} test
 
-  create_tag:
+  deploy_hotfix:
     needs: test_hotfix
+    runs-on: ubuntu-latest
+    permissions: write-all
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Deploy to hotfix environment
+        run: echo "Deploying to hotfix"
+
+  create_tag:
+    needs: deploy_hotfix
     runs-on: ubuntu-latest
     permissions: write-all
     steps:
@@ -96,19 +107,8 @@ jobs:
           draft: false
           prerelease: false
 
-  deploy_hotfix:
-    needs: create_release
-    runs-on: ubuntu-latest
-    permissions: write-all
-
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Deploy to hotfix environment
-        run: echo "Deploying to hotfix"
-
   deploy_prod:
-    needs: deploy_hotfix
+    needs: create_release
     runs-on: ubuntu-latest
     environment: 'DEPLOY_PROD'
     permissions: write-all
