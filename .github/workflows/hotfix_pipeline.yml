@@ -60,7 +60,7 @@ jobs:
   create_tag:
     needs: deploy_hotfix
     runs-on: ubuntu-latest
-    environment: ' DEPLOY_PROD'
+    environment: 'DEPLOY_PROD'
     permissions: write-all
     steps:
       - uses: actions/checkout@v3
