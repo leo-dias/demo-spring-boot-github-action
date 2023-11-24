@@ -107,7 +107,7 @@ jobs:
           draft: false
           prerelease: false
 
-  delete_and_recreate_branch:
+  sync_hotfix:
     needs: create_release
     runs-on: ubuntu-latest
     permissions: write-all
