@@ -116,27 +116,18 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Check if Hotfix/Master Branch exists
-        id: branch_exists
+      - name: Synchronize Hotfix/Master Branch
         run: |
-          if git rev-parse --verify hotfix/master >/dev/null 2>&1; then
-            echo "::set-output name=exists::true"
-          else
-            echo "::set-output name=exists::false"
+          if git ls-remote --exit-code --heads origin hotfix/master >/dev/null 2>&1; then
+            echo "Remote branch hotfix/master exists. Deleting..."
+            git push origin --delete hotfix/master
           fi
-
-      - name: Delete Hotfix/Master Branch
-        if: steps.branch_exists.outputs.exists == 'true'
-        run: |
-          git branch -D hotfix/master
-          git push origin --delete hotfix/master
-
-      - name: Recreate Hotfix/Master Branch
-        run: |
+          
+          echo "Synchronizing Hotfix/Master Branch"
           git checkout master
           git pull
           git checkout -b hotfix/master
-          git push origin hotfix/master
+          git push origin hotfix/master   
 
   deploy_master:
     needs: sync_hotfix
