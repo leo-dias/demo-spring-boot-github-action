@@ -121,11 +121,11 @@ jobs:
     permissions: write-all
 
     steps:
-#      - name: Checkout code
-#        uses: actions/checkout@v3
-#        with:
-#          ref: dev
-#          fetch-depth: 0  # Required for rebasing
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          ref: dev
+          fetch-depth: 0  # Required for rebasing
 
       - name: Create a Temporary Hotfix Branch for PR
         run: |
