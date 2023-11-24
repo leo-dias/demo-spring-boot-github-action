@@ -133,11 +133,13 @@ jobs:
 
       - name: Recreate Hotfix/Master Branch
         run: |
+          git checkout master
+          git pull
           git checkout -b hotfix/master
           git push origin hotfix/master
 
   deploy_master:
-    needs: create_release
+    needs: sync_hotfix
     runs-on: ubuntu-latest
     environment: 'DEPLOY_PROD'
     permissions: write-all
