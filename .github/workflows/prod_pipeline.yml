@@ -124,9 +124,8 @@ jobs:
           fi
           
           echo "Synchronizing Hotfix/Master Branch"
-          git checkout master
-          git pull
-          git checkout -b hotfix/master
+          git fetch
+          git checkout -b hotfix/master origin/master
           git push origin hotfix/master   
 
   deploy_master:
