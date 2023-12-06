@@ -16,4 +16,6 @@ public class BlaController {
     public String hello2() {
         return "hello2";
     }
+
+    // test for rebase
 }
